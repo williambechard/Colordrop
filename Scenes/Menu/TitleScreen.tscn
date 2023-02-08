@@ -166,7 +166,6 @@ custom_constants/separation = 20
 [node name="New Game Button" parent="Menu/CenterRow/Buttons" instance=ExtResource( 5 )]
 margin_right = 495.0
 margin_bottom = 60.0
-mouse_default_cursor_shape = 0
 
 [node name="Options Button" parent="Menu/CenterRow/Buttons" instance=ExtResource( 4 )]
 margin_top = 80.0
@@ -203,9 +202,3 @@ GD
 valign = 2
 
 [connection signal="timeout" from="Menu/CharacterFX/Timer" to="Menu/CharacterFX" method="_on_Timer_timeout"]
-[connection signal="mouse_entered" from="Menu/CenterRow/Buttons/New Game Button" to="Menu/CenterRow/Buttons/New Game Button" method="_on_Button_mouse_entered"]
-[connection signal="mouse_entered" from="Menu/CenterRow/Buttons/New Game Button" to="Menu/CenterRow/Buttons/New Game Button" method="_on_New_Game_mouse_entered"]
-[connection signal="mouse_entered" from="Menu/CenterRow/Buttons/Options Button" to="Menu/CenterRow/Buttons/Options Button" method="_on_Button_mouse_entered"]
-[connection signal="mouse_entered" from="Menu/CenterRow/Buttons/Options Button" to="Menu/CenterRow/Buttons/Options Button" method="_on_New_Game_mouse_entered"]
-[connection signal="mouse_entered" from="Menu/CenterRow/Buttons/Editor Button" to="Menu/CenterRow/Buttons/Editor Button" method="_on_Button_mouse_entered"]
-[connection signal="mouse_entered" from="Menu/CenterRow/Buttons/Editor Button" to="Menu/CenterRow/Buttons/Editor Button" method="_on_New_Game_mouse_entered"]
