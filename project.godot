@@ -9,12 +9,18 @@
 config_version=4
 
 _global_script_classes=[ {
+"base": "Node",
+"class": "AudioStreamManager",
+"language": "GDScript",
+"path": "res://Objects/Global/AudioManager.gd"
+}, {
 "base": "",
 "class": "GitAPI",
 "language": "NativeScript",
 "path": "res://addons/godot-git-plugin/git_api.gdns"
 } ]
 _global_script_class_icons={
+"AudioStreamManager": "",
 "GitAPI": ""
 }
 
@@ -23,6 +29,10 @@ _global_script_class_icons={
 config/name="ColorDrop"
 run/main_scene="res://Scenes/Menu/TitleScreen.tscn"
 config/icon="res://icon.png"
+
+[autoload]
+
+AudioManager="*res://Objects/Global/AudioManager.gd"
 
 [display]
 
