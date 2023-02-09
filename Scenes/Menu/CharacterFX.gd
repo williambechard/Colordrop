@@ -49,3 +49,7 @@ func _on_Timer_timeout():
 	timer.wait_time = rand_range(.3, .75)
 	 
 	
+
+
+func _on_FXLayer_ready():
+	pass # Replace with function body.

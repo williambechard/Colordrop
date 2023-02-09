@@ -6,3 +6,8 @@
 
 [node name="Label" parent="." index="0"]
 text = "Options"
+
+[node name="SceneToLoad" type="Node2D" parent="Label" index="1"]
+__meta__ = {
+"_editor_description_": "Options.tscn"
+}
