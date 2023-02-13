@@ -8,32 +8,63 @@ export (int) var depth
 export (int) var rng
 
 onready var circleNodeObject = preload("res://Objects/Game/CircleNode.tscn")
+onready var pipeObject = preload("res://Objects/Game/pipe.tscn")
 
+var grid = []
 
-var grid = [];
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	randomize()
-	grid = createGrid()
-	#print(grid)
-	fillGrid()
-	#print(grid)
-	layPipes()
-	displayGrid()
+	grid = createGrid() ##create empty grid
+	fillGrid() #create nodes in the grid
+	displayGrid() #setup grid node positions
+	layPipes() #setup pipes between the nodes
+
+func getNode(j, i):
+	return self.get_node("circleNode["+j as String +"]["+i as String+"]")
 
 func layPipes():
-	for j in range(depth-1, 0, -1):
-		var noConnections : bool = true
-		for i in  rng : #check one layer down in depth for a node
-			if(grid[j][i]!=null):
-				if(grid[j-1][i]!=null):
-					noConnections =false
-					#connect current node to the found one
-					print(self.get_node("circleNode["+j as String +"]["+i as String+"]"))
-		if(noConnections):
-			print("no connections")
-			
+	for j in range(depth-1, 0, -1): #check through each layer of the grid, starting at the top and moving down
+		var pipes = []
+		for i in rng : #loop through each node in range
+			if(grid[j][i]!=null): #first make sure there is even a node at the spot we are on
+				for k in rng: #if there is then we now need to loop in range again, this time for the level below it
+					if(grid[j-1][k]!=null): #if a node below it, then connect it! (1rst time guaranteed)
+						#check for intersection if there are other pipes
+						var pipeBlocked :bool = false
+						#if(pipes.size()>0):
+						var proposedLine := {p1=Vector2(grid[j][i].position.x,grid[j][i].position.y), p2 = Vector2(grid[j-1][k].position.x, grid[j-1][k].position.y)}
+						for l in pipes: # check each line against proposed line
+							if(intersect(proposedLine.p1, proposedLine.p2, Vector2(l[0].x, l[0].y), Vector2(l[1].x, l[1].y))):
+								pipeBlocked=true
+								
+						if(!pipeBlocked):		
+							var pipe = pipeObject.instance()
+							pipe.setPipe(grid[j][i], grid[j-1][k])
+							pipes.push_front([grid[j][i].position, grid[j-1][k].position])
+							add_child(pipe, true)
+					else:
+						if(k==0 || k==rng-1):
+							for z in range(j-2, 0, -1):
+								if(grid[z][k]!=null):
+									var pBlocked:bool = false
+									for l in pipes: # check each line against proposed line
+										if(intersect(Vector2(grid[j][i].position.x,grid[j][i].position.y), Vector2(grid[z][k].position.x, grid[z][k].position.y), Vector2(l[0].x, l[0].y), Vector2(l[1].x, l[1].y))):
+											pBlocked=true
+										
+									if(!pBlocked):
+										var pipe = pipeObject.instance()
+										pipe.setPipe(grid[j][i], grid[z][k])
+										pipes.push_front([grid[j][i].position, grid[z][k].position])
+										add_child(pipe, true)
+										break
 
+func ccw(A,B,C):
+	return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
+	
+func intersect(A,B,C,D):
+	return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
+ 
 func createGrid():
 	var array  = []
 	for j in depth:
