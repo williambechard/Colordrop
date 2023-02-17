@@ -15,14 +15,26 @@ var grid = []
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	randomize()
-	grid = createGrid() ##create empty grid
-	fillGrid() #create nodes in the grid
-	displayGrid() #setup grid node positions
+	grid = createEmptyGrid() ##create empty grid
+	createNodes() #create nodes in the grid
+	#positionNodesOnGrid() #setup grid node positions
 	layPipes() #setup pipes between the nodes
 
 func getNode(j, i):
 	return self.get_node("circleNode["+j as String +"]["+i as String+"]")
 
+	
+func pipeBlock(from, to, allPipes):
+	var pipeBlocked :bool = false
+	
+	for l in allPipes: # check each line against proposed line
+		if(intersect(from, to, l[0], l[1])):
+			pipeBlocked=true
+			break
+			
+	return pipeBlocked
+
+	
 func layPipes():
 	for j in range(depth-1, 0, -1): #check through each layer of the grid, starting at the top and moving down
 		var pipes = []
@@ -31,33 +43,22 @@ func layPipes():
 				for k in rng: #if there is then we now need to loop in range again, this time for the level below it
 					if(grid[j-1][k]!=null): #if a node below it, then connect it! (1rst time guaranteed)
 						#check for intersection if there are other pipes
-						var pipeBlocked :bool = false
-						#if(pipes.size()>0):
-						var proposedLine := {p1=Vector2(grid[j][i].position.x,grid[j][i].position.y), p2 = Vector2(grid[j-1][k].position.x, grid[j-1][k].position.y)}
-						for l in pipes: # check each line against proposed line
-							if(intersect(proposedLine.p1, proposedLine.p2, Vector2(l[0].x, l[0].y), Vector2(l[1].x, l[1].y))):
-								pipeBlocked=true
-								
-						if(!pipeBlocked):		
+						if(!pipeBlock(grid[j][i].position, grid[j-1][k].position, pipes)):		
 							var pipe = pipeObject.instance()
 							pipe.setPipe(grid[j][i], grid[j-1][k])
 							pipes.push_front([grid[j][i].position, grid[j-1][k].position])
 							add_child(pipe, true)
-					else:
-						if(k==0 || k==rng-1):
-							for z in range(j-2, 0, -1):
-								if(grid[z][k]!=null):
-									var pBlocked:bool = false
-									for l in pipes: # check each line against proposed line
-										if(intersect(Vector2(grid[j][i].position.x,grid[j][i].position.y), Vector2(grid[z][k].position.x, grid[z][k].position.y), Vector2(l[0].x, l[0].y), Vector2(l[1].x, l[1].y))):
-											pBlocked=true
-										
-									if(!pBlocked):
+					else: #no node below, so keep checking down only (and only if 1rst or last position)
+						if(i==0 || i==rng-1):
+							for z in range(j-1, 0, -1): #search down for the next node
+								if(grid[z][i]!=null):
+									if(!pipeBlock(grid[j][i].position, grid[z][i].position, pipes)):
 										var pipe = pipeObject.instance()
-										pipe.setPipe(grid[j][i], grid[z][k])
-										pipes.push_front([grid[j][i].position, grid[z][k].position])
+										pipe.setPipe(grid[j][i], grid[z][i])
+										pipes.push_front([grid[j][i].position, grid[z][i].position])
 										add_child(pipe, true)
 										break
+					
 
 func ccw(A,B,C):
 	return (C.y-A.y) * (B.x-A.x) > (B.y-A.y) * (C.x-A.x)
@@ -65,7 +66,7 @@ func ccw(A,B,C):
 func intersect(A,B,C,D):
 	return ccw(A,C,D) != ccw(B,C,D) and ccw(A,B,C) != ccw(A,B,D)
  
-func createGrid():
+func createEmptyGrid():
 	var array  = []
 	for j in depth:
 		array.append([])
@@ -73,32 +74,38 @@ func createGrid():
 			array[j].append(null)
 	return array
 	
-func fillGrid():
+func createNodes():
 	grid[0][1] =circleNodeObject.instance()
 	grid[0][1].set_name("circleNode["+"0"+"]["+"1"+"]")
 	add_child(grid[0][1],true)
-	
+	grid[0][1].position = Vector2(64 + (get_viewport_rect().size[0] *.5 - (32*rng)), (depth * 64) + ((get_viewport_rect().size[1]*.5)-(32*depth)))
+
 	for j in range(1, depth):
 		for i in rng:
 			if(j==depth-1):
 				grid[j][i]= circleNodeObject.instance()
 				grid[j][i].set_name("circleNode["+j as String +"]["+i as String+"]")
 				add_child(grid[j][i],true)
+				grid[j][i].position = Vector2(((i*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth))))
 			else:
 				if(randi() % 2==1):
 					grid[j][i]= circleNodeObject.instance()
 					grid[j][i].set_name("circleNode["+j as String +"]["+i as String+"]")
 					add_child(grid[j][i],true)
+					grid[j][i].position = Vector2(((i*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth))))
+
 					
 		if(grid[j][0]==null and grid[j][1]==null and grid[j][2]==null):
 			var index = randi()%3
 			grid[j][index]= circleNodeObject.instance()
 			grid[j][index].set_name("circleNode["+j as String +"]["+index as String+"]")
 			add_child(grid[j][index],true)
+			grid[j][index].position = Vector2(((index*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth))))
 
-func displayGrid():
+
+func positionNodesOnGrid():
 	for j in range(depth-1, -1, -1):
-		for i in  rng :
+		for i in rng :
 			if(grid[j][i]!=null):
 				grid[j][i].position = Vector2(((i*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth))))
 # Called every frame. 'delta' is the elapsed time since the previous frame.
