@@ -6,3 +6,10 @@
 script = ExtResource( 1 )
 depth = 8
 rng = 3
+color1 = Color( 1, 0, 0, 1 )
+color2 = Color( 0, 1, 0.0627451, 1 )
+color3 = Color( 0.054902, 0, 1, 1 )
+color4 = Color( 1, 0.960784, 0, 1 )
+color5 = Color( 0.921569, 0, 1, 1 )
+color6 = Color( 1, 1, 1, 1 )
+color7 = Color( 0.168627, 0.168627, 0.168627, 1 )

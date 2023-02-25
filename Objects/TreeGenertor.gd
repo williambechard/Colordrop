@@ -7,6 +7,16 @@ extends Node2D
 export (int) var depth
 export (int) var rng
 
+export (Color) var color1
+export (Color) var color2
+export (Color) var color3
+export (Color) var color4
+export (Color) var color5
+export (Color) var color6
+export (Color) var color7
+
+var colors = []
+
 onready var circleNodeObject = preload("res://Objects/Game/CircleNode.tscn")
 onready var pipeObject = preload("res://Objects/Game/pipe.tscn")
 
@@ -15,6 +25,14 @@ var grid = []
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	randomize()
+	colors.push_front(color1)
+	colors.push_front(color2)
+	colors.push_front(color3)
+	colors.push_front(color4)
+	colors.push_front(color5)
+	colors.push_front(color6)
+	colors.push_front(color7)
+	
 	grid = createEmptyGrid() ##create empty grid
 	createNodes() #create nodes in the grid
 	#positionNodesOnGrid() #setup grid node positions
@@ -73,34 +91,35 @@ func createEmptyGrid():
 		for i in rng:
 			array[j].append(null)
 	return array
-	
-func createNodes():
-	grid[0][1] =circleNodeObject.instance()
-	grid[0][1].set_name("circleNode["+"0"+"]["+"1"+"]")
-	add_child(grid[0][1],true)
-	grid[0][1].position = Vector2(64 + (get_viewport_rect().size[0] *.5 - (32*rng)), (depth * 64) + ((get_viewport_rect().size[1]*.5)-(32*depth)))
 
+func setupNode(indexY, indexX, pos):
+	var obj = circleNodeObject.instance()
+	obj.set_name("circleNode["+indexY+"]["+indexX+"]")
+	obj.position = pos
+	obj.setOrigColor(colors[randi() % colors.size()])
+	obj.setColor(obj.color)
+	add_child(obj,true)
+	return obj
+
+func createNodes():
+	grid[0][1] = setupNode('0','1',Vector2(64 + (get_viewport_rect().size[0] *.5 - (32*rng)), (depth * 64) + ((get_viewport_rect().size[1]*.5)-(32*depth))))
+	 
 	for j in range(1, depth):
 		for i in rng:
+			var createNode : bool = false
 			if(j==depth-1):
-				grid[j][i]= circleNodeObject.instance()
-				grid[j][i].set_name("circleNode["+j as String +"]["+i as String+"]")
-				add_child(grid[j][i],true)
-				grid[j][i].position = Vector2(((i*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth))))
+				createNode = true
 			else:
 				if(randi() % 2==1):
-					grid[j][i]= circleNodeObject.instance()
-					grid[j][i].set_name("circleNode["+j as String +"]["+i as String+"]")
-					add_child(grid[j][i],true)
-					grid[j][i].position = Vector2(((i*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth))))
-
+					createNode = true
 					
+			if(createNode):
+				grid[j][i] = setupNode(j as String, i as String, Vector2(((i*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth)))))					
+		
 		if(grid[j][0]==null and grid[j][1]==null and grid[j][2]==null):
 			var index = randi()%3
-			grid[j][index]= circleNodeObject.instance()
-			grid[j][index].set_name("circleNode["+j as String +"]["+index as String+"]")
-			add_child(grid[j][index],true)
-			grid[j][index].position = Vector2(((index*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth))))
+			grid[j][index]= setupNode(j as String, index as String, Vector2(((index*64) + (get_viewport_rect().size[0] *.5 - (32*rng))), (((depth - j) * 64)+ ((get_viewport_rect().size[1]*.5)-(32*depth)))))
+ 
 
 
 func positionNodesOnGrid():
