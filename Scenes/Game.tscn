@@ -8,3 +8,14 @@
 [node name="FXLayer" parent="." instance=ExtResource( 2 )]
 
 [node name="Tree Generator" parent="." instance=ExtResource( 1 )]
+depth = 0
+rng = 0
+color1 = Color( 0, 0, 0, 1 )
+color2 = Color( 0, 0, 0, 1 )
+color3 = Color( 0, 0, 0, 1 )
+color4 = Color( 0, 0, 0, 1 )
+color5 = Color( 0, 0, 0, 1 )
+color6 = Color( 0, 0, 0, 1 )
+color7 = Color( 0, 0, 0, 1 )
+
+[node name="Node2D" type="Node2D" parent="."]

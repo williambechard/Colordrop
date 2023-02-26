@@ -21,6 +21,7 @@ onready var circleNodeObject = preload("res://Objects/Game/CircleNode.tscn")
 onready var pipeObject = preload("res://Objects/Game/pipe.tscn")
 
 var grid = []
+var allPipes=[]
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -37,15 +38,29 @@ func _ready():
 	createNodes() #create nodes in the grid
 	#positionNodesOnGrid() #setup grid node positions
 	layPipes() #setup pipes between the nodes
-
+	spreadColorDown()
+		
+	
 func getNode(j, i):
 	return self.get_node("circleNode["+j as String +"]["+i as String+"]")
 
+
+func spreadColorDown():
+	for j in range(depth-2, -1, -1): #check through each layer of the grid, starting at the top and moving down
+		for i in rng : #loop through each node in range
+			if(grid[j][i]!=null): #first make sure there is even a node at the spot we are on
+				#remove any colors already mixed
+				grid[j][i].clearColorMixer()
+				for pipe in allPipes:
+					if(pipe.to==grid[j][i] && pipe.open):
+						grid[j][i].addColor(pipe.from.color) #bleed color down
+				#now mix all colors together
+				grid[j][i].mixColor()
 	
-func pipeBlock(from, to, allPipes):
+func pipeBlock(from, to, P):
 	var pipeBlocked :bool = false
 	
-	for l in allPipes: # check each line against proposed line
+	for l in P: # check each line against proposed line
 		if(intersect(from, to, l[0], l[1])):
 			pipeBlocked=true
 			break
@@ -65,6 +80,7 @@ func layPipes():
 							var pipe = pipeObject.instance()
 							pipe.setPipe(grid[j][i], grid[j-1][k])
 							pipes.push_front([grid[j][i].position, grid[j-1][k].position])
+							allPipes.push_front(pipe)
 							add_child(pipe, true)
 					else: #no node below, so keep checking down only (and only if 1rst or last position)
 						if(i==0 || i==rng-1):
@@ -74,6 +90,7 @@ func layPipes():
 										var pipe = pipeObject.instance()
 										pipe.setPipe(grid[j][i], grid[z][i])
 										pipes.push_front([grid[j][i].position, grid[z][i].position])
+										allPipes.push_front(pipe)
 										add_child(pipe, true)
 										break
 					

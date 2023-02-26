@@ -29,6 +29,7 @@ func _on_Valve_input_event(_viewport, event, _shape_idx):
 			valve.rotation_degrees = openAngle
 		else :
 			valve.rotation_degrees = closedAngle
+		get_node("/root/Tree Generator").spreadColorDown() 
 
 
 func setPipe(f:Node2D, t:Node2D):
